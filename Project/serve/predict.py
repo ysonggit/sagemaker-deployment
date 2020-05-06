@@ -70,8 +70,7 @@ def predict_fn(input_data, model):
     #         data_X   - A sequence of length 500 which represents the converted review
     #         data_len - The length of the review
 
-    data_X = None
-    data_len = None
+    data_X, data_len = convert_and_pad(model.word_dict, review_to_words(input_data))
 
     # Using data_X and data_len we construct an appropriate input tensor. Remember
     # that our model expects input data of the form 'len, review[500]'.
@@ -86,7 +85,10 @@ def predict_fn(input_data, model):
 
     # TODO: Compute the result of applying the model to the input data. The variable `result` should
     #       be a numpy array which contains a single integer which is either 1 or 0
-
-    result = None
+    # https://discuss.pytorch.org/t/model-eval-vs-with-torch-no-grad/19615
+    # torch.no_grad() impacts the autograd engine and deactivate it. It will reduce memory usage and speed up computations but you won’t be able to backprop
+    with torch.no_grad():
+        output = model.forward(data)
+    result = np.round(output.numpy())
 
     return result
